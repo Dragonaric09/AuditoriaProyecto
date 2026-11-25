@@ -624,8 +624,8 @@ p { margin: 0; }
   .data-risk { padding-left: 24px; }
 
   .row .btn { flex-basis: 100%; }
-  .exfil { align-items: flex-start; padding: 14px; }
-  .exfil-card { margin: 0 auto; padding: 22px 18px; }
+  .exfil { align-items: flex-start; padding: 6px 14px 14px; }
+  .exfil-card { margin: 0 auto; padding: 12px 18px 22px; }
   .exfil-count { font-size: 4.2rem; }
 }
 
