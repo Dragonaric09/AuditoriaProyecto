@@ -4,9 +4,11 @@ Demostración **educativa e inofensiva** de un ataque de *quishing* (phishing po
 para concientizar a una audiencia sobre el riesgo de escanear códigos QR desconocidos.
 
 > ⚠️ **No roba datos.** No pide contraseñas ni OTP, no instala nada y no guarda ni envía
-> información. Solo muestra a cada persona la "huella" que su propio dispositivo entrega
-> automáticamente al visitar una web, para ilustrar el riesgo. Úsalo únicamente con
-> **consentimiento** de la audiencia y con fines educativos.
+> información personal. Solo muestra a cada persona lo que su propio navegador entrega
+> automáticamente al visitar una web, para ilustrar el riesgo. Al cargar la página se
+> descargan la fuente tipográfica (Google Fonts) y la librería del QR (cdnjs), como en
+> cualquier web. La consulta de IP a ipwho.is solo ocurre si la persona pulsa el botón.
+> Úsalo únicamente con **consentimiento** de la audiencia y con fines educativos.
 
 ## Qué es
 
@@ -14,13 +16,13 @@ Es un frontend estático servido por un pequeño servidor Express. Tiene dos mod
 
 - **Modo expositor** (enlace de la demo + `#presentar`, o el botón del pie): muestra un
   QR grande para proyectar. La audiencia lo escanea.
-- **Modo audiencia** (lo que ven al escanear): un señuelo de un "banco" ficticio y, al
-  tocar el botón, la revelación de que cayeron en quishing + la información que la página
-  ya conoce de su dispositivo + consejos de prevención.
+- **Modo audiencia** (lo que ven al escanear): una entidad ficticia ("BancoDemo") y, al
+  continuar, la revelación de que cayeron en quishing, los datos que su navegador ya
+  conoce, un botón opcional para consultar la IP, y consejos de prevención.
 
 ## Requisitos
 
-- Node.js 18 o superior.
+- Node.js 18 o superior (`npm run dev` usa `node --watch`, disponible desde Node 18.11).
 
 ## Uso local
 
@@ -34,6 +36,20 @@ Luego abre http://localhost:3000
 - Audiencia: http://localhost:3000/
 - Expositor (QR): http://localhost:3000/#presentar
 
+## Cómo proyectar la demo
+
+1. **Avisa antes** a la audiencia que es una simulación y pide su consentimiento.
+2. Abre el modo expositor **desde la dirección de red**, no desde `localhost`. La consola
+   del servidor muestra las direcciones disponibles, por ejemplo `http://192.168.1.20:3000`.
+   Un QR con `localhost` solo funciona en esa computadora.
+3. La audiencia debe estar en la **misma red Wi-Fi** que el servidor. Si no, despliega la
+   app (ver abajo) y usa su enlace público.
+4. Usa **Ver la demo como la verá la audiencia** para revisar el recorrido antes de proyectar,
+   y **Volver al inicio de la demo** para repetirlo sin recargar la página.
+
+La pantalla del expositor avisa si el enlace no sirve (por ejemplo, si es `localhost`,
+si no es una dirección válida o si el generador de QR no se pudo cargar).
+
 ## Despliegue
 
 Es una app Node estándar; sirve para cualquier hosting que ejecute Node:
@@ -42,19 +58,30 @@ Es una app Node estándar; sirve para cualquier hosting que ejecute Node:
 - **VPS propio:** `npm install` y `npm start` (idealmente detrás de Nginx con HTTPS).
 
 El servidor respeta la variable de entorno `PORT` (usa 3000 por defecto). El QR apunta
-solo con `location.origin + pathname`, por lo que se adapta automáticamente a la URL
-pública donde lo despliegues; no hay que configurar nada.
+con `location.origin + pathname`, por lo que se adapta automáticamente a la URL pública
+donde lo despliegues; no hay que configurar nada.
 
 > 💡 **HTTPS recomendado.** Algunas funciones del navegador (como la batería) y la
 > confianza de la cámara al escanear funcionan mejor sobre HTTPS.
+
+## Seguridad del servidor
+
+- **Política de contenido (CSP):** la página solo puede cargar sus propios archivos, las
+  fuentes de Google, la librería de QR desde cdnjs y la consulta de IP. No puede enviar
+  datos a otros destinos.
+- **Integridad (SRI):** el script de QR se verifica con su hash; si cdnjs cambia el
+  archivo, el navegador lo rechaza.
+- **No indexable:** `noindex, nofollow` en la página y en la cabecera `X-Robots-Tag`.
 
 ## Estructura
 
 ```
 .
 ├── public/
-│   └── index.html     # Todo el frontend (HTML + CSS + JS)
-├── server.js          # Servidor Express estático
+│   ├── index.html     # Marcado y sprite de iconos
+│   ├── styles.css     # Estilos (tokens de color; modo oscuro automático)
+│   └── app.js         # Lógica: huella del dispositivo, IP, generación del QR
+├── server.js          # Servidor Express: archivos estáticos y cabeceras de seguridad
 ├── package.json
 └── README.md
 ```
@@ -66,4 +93,5 @@ equipos de seguridad para entrenar usuarios. Antes de usarla:
 
 1. Anuncia que es una simulación de seguridad y pide el consentimiento de los participantes.
 2. No la modifiques para capturar credenciales reales ni para suplantar a un banco real.
+   La entidad "BancoDemo" es ficticia; si la cambias, usa un nombre igualmente ficticio.
 3. No la publiques como un sitio abierto indexable (ya incluye `noindex`).
