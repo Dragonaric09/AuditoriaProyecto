@@ -17,8 +17,29 @@ Es un frontend estático servido por un pequeño servidor Express. Tiene dos mod
 - **Modo expositor** (enlace de la demo + `#presentar`, o el botón del pie): muestra un
   QR grande para proyectar. La audiencia lo escanea.
 - **Modo audiencia** (lo que ven al escanear): una entidad ficticia ("BancoDemo") y, al
-  continuar, la revelación de que cayeron en quishing, los datos que su navegador ya
-  conoce, un botón opcional para consultar la IP, y consejos de prevención.
+  continuar, la revelación de que cayeron en quishing.
+
+### Qué muestra la revelación
+
+- **Tu huella digital:** un identificador calculado en el propio dispositivo a partir de
+  sus atributos (canvas, GPU, fuentes, audio, pantalla, etc.). Se mantiene aunque la
+  persona borre cookies o use una ventana de incógnito; la pantalla invita a comprobarlo.
+- **Nivel de exposición** (bajo / medio / alto): una heurística según cuántas señales de
+  alta identificación detecta.
+- **Lista de datos con "¿para qué sirve?":** cada dato tiene un botón que explica cómo lo
+  usaría un atacante. Se revelan de forma progresiva.
+- **Huellas de alta entropía:** huella de canvas, modelo de GPU (WebGL), fuentes
+  instaladas y huella de audio. En Chromium se afina la versión de Windows con
+  `userAgentData`.
+- **¿Te delata o te disfraza?:** detecta incoherencias típicas de herramientas de
+  privacidad o de automatización (webdriver, plataforma vs. navegador, idiomas vacíos).
+- **IP, bajo demanda:** un botón consulta la IP pública (única petición externa) y otro
+  revela la IP de la red local por WebRTC **sin servidores externos** (si el navegador la
+  protege con mDNS, lo explica).
+- **Simulación de "envío" de datos:** a los 20 s aparece una alerta a pantalla completa
+  con una cuenta atrás; a los 5 s restantes aparece un botón para detenerlo. Al pulsarlo
+  (o al agotarse el tiempo) se explica qué podría desencadenar un solo toque y los riesgos.
+  **No se envía absolutamente nada:** la cuenta atrás es una dramatización local.
 
 ## Requisitos
 
@@ -80,7 +101,7 @@ donde lo despliegues; no hay que configurar nada.
 ├── public/
 │   ├── index.html     # Marcado y sprite de iconos
 │   ├── styles.css     # Estilos (tokens de color; modo oscuro automático)
-│   └── app.js         # Lógica: huella del dispositivo, IP, generación del QR
+│   └── app.js         # Lógica: huella, exposición, simulación de envío, QR
 ├── server.js          # Servidor Express: archivos estáticos y cabeceras de seguridad
 ├── package.json
 └── README.md

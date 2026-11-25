@@ -17,7 +17,7 @@
 </head>
 <body>
 
-<!-- Sprite de iconos (Lucide-style, trazo). Se usa con <use href="#i-nombre">. -->
+<!-- Sprite de iconos (trazo). Se usa con <use href="#i-nombre">. -->
 <svg class="sprite" aria-hidden="true" focusable="false">
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.6 3.4 8.4 8 9 4.6-.6 8-4.4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
@@ -29,12 +29,20 @@
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
   <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></symbol>
+  <symbol id="i-fingerprint" viewBox="0 0 24 24"><path d="M12 10a2 2 0 0 0-2 2c0 1.6.4 3 1 4.3"/><path d="M8 11a4 4 0 0 1 8 0c0 2 .4 3.8 1 5.4"/><path d="M5 12a7 7 0 0 1 14 0v1"/><path d="M12 14v3.5"/></symbol>
   <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.8a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16.2a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/></symbol>
   <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
   <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M20 20v.01M17 20h.01"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 8h.01M7 17h.01"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-net" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4M5 16v-2h14v2"/></symbol>
 </svg>
 
 <main>
@@ -73,18 +81,41 @@
 
     <div class="reveal-body">
 
-      <div class="stat">
-        <p class="stat-value" id="statValue">0</p>
-        <p class="stat-label">datos de tu dispositivo y de tu conexión que esta página ya conoce.</p>
+      <!-- Golpe inicial: tu huella + exposición -->
+      <div class="idcard">
+        <p class="idcard-label">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-fingerprint"></use></svg>
+          Tu huella digital en este dispositivo
+        </p>
+        <p class="idcard-id" id="visitorId">· · · · · · · ·</p>
+        <p class="idcard-note">Este código sale de combinar lo que tu equipo revela. <strong>Te reconoce aunque borres cookies o uses otra pestaña.</strong>
+          <button type="button" class="risk-toggle" id="incognitoBtn" aria-expanded="false">¿Cómo lo compruebo?</button>
+        </p>
+        <div class="idcard-incognito" id="incognitoNote" hidden>
+          Abre esta misma página en una <strong>ventana privada o de incógnito</strong> y compara el código. Casi siempre es idéntico: por eso el modo incógnito no te hace anónimo frente a esta técnica.
+        </div>
+        <p class="idcard-count"><strong id="dataCount">0</strong> datos recogidos de tu dispositivo, sin pedirte permiso.</p>
+        <div class="meter" id="exposure">
+          <div class="meter-head"><span>Nivel de exposición</span><span class="meter-level" id="exposureLevel">—</span></div>
+          <div class="meter-track"><span class="meter-seg"></span><span class="meter-seg"></span><span class="meter-seg"></span></div>
+        </div>
+        <p class="small muted" id="exposureNote"></p>
       </div>
 
       <section aria-labelledby="fp-title">
         <h3 class="section-title" id="fp-title">Lo que esta página ya sabe de ti</h3>
+        <p class="small muted hint-row">Toca el <svg class="ico inline" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-help"></use></svg> de cada dato para ver cómo lo usaría un atacante.</p>
         <div class="data-list" id="fingerprint"></div>
         <div class="ip-box">
           <button type="button" class="btn ghost" id="ipBtn">Consultar mi dirección IP</button>
+          <button type="button" class="btn ghost" id="rtcBtn">Revelar mi IP en la red local</button>
           <p class="hint" id="ipNote" aria-live="polite"></p>
         </div>
+      </section>
+
+      <section aria-labelledby="incoh-title">
+        <h3 class="section-title" id="incoh-title">¿Tu navegador te delata o te disfraza?</h3>
+        <div class="incoh" id="incoherences"></div>
       </section>
 
       <section aria-labelledby="atk-title">
@@ -110,7 +141,7 @@
 
       <div class="reassure">
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-shield"></use></svg>
-        <p><strong>Demostración educativa.</strong> Esta página no guarda ni envía tus datos: todo se calcula en tu dispositivo. La única consulta que usa tu conexión es la de IP, y solo ocurre si la pulsas. Como cualquier web, tu navegador también descarga fuentes y librerías de servidores públicos.</p>
+        <p><strong>Demostración educativa.</strong> Esta página no guarda ni envía tus datos: todo —incluido el contador de «envío» que viste— se calcula y se simula en tu dispositivo. La única consulta que sale de verdad es la de IP, y solo si pulsas su botón.</p>
       </div>
 
       <button type="button" class="btn ghost" id="restart">
@@ -123,7 +154,7 @@
   <!-- ========================= PRESENTADOR ========================= -->
   <section class="present" id="present" aria-labelledby="present-title" tabindex="-1" hidden>
     <h2 id="present-title">Modo expositor</h2>
-    <p class="muted">Antes de proyectar, avisa a la audiencia que es una simulación y pide su consentimiento. Luego pide que escaneen el código con la cámara de su teléfono.</p>
+    <p class="muted">Pide a la audiencia que escaneen el código con la cámara de su teléfono.</p>
 
     <div class="alerts" id="alerts" role="status"></div>
 
@@ -153,8 +184,50 @@
 
 </main>
 
+<!-- ========================= SIMULACIÓN DE ENVÍO (dramática) ========================= -->
+<div class="exfil" id="exfil" role="alertdialog" aria-modal="true" aria-labelledby="exfilTitle" tabindex="-1" hidden>
+  <div class="exfil-card" id="exfilCard">
+
+    <!-- Fase 1: cuenta atrás -->
+    <div class="exfil-view" id="exfilCountView">
+      <span class="exfil-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-server"></use></svg></span>
+      <h2 class="exfil-title" id="exfilTitle">Transfiriendo tu información…</h2>
+      <p class="exfil-sub">Tu huella, tu IP y los datos de tu dispositivo se enviarán a un servidor remoto en:</p>
+      <div class="exfil-count" id="exfilCount" aria-live="assertive">10</div>
+      <div class="exfil-bar"><span id="exfilBar"></span></div>
+      <p class="exfil-target" id="exfilTarget">destino: 185.220.101.47 · servidor-no-identificado</p>
+      <button type="button" class="btn danger big" id="exfilStop" hidden>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-stop"></use></svg>
+        ¿Quieres detener el envío?
+      </button>
+    </div>
+
+    <!-- Fase 2: explicación -->
+    <div class="exfil-view" id="exfilExplainView" hidden>
+      <span class="exfil-icon calm"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-stop"></use></svg></span>
+      <h2 class="exfil-title calm" id="exfilExplainTitle">Detuviste el envío</h2>
+      <p class="exfil-sub" id="exfilExplainText"></p>
+      <div class="exfil-explain">
+        <div class="section-title">Lo que un solo toque puede desencadenar</div>
+        <ul class="tips attack">
+          <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg><span>Confirmar el envío de tu huella y tu IP al servidor del atacante.</span></li>
+          <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg><span>Conceder permisos de ubicación, cámara o notificaciones sin que lo notes.</span></li>
+          <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg><span>Descargar o abrir un archivo malicioso en tu teléfono.</span></li>
+          <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg><span>Entregar tu clave y tu OTP en una copia falsa de tu banco.</span></li>
+        </ul>
+        <p class="small muted">En un fraude real, el botón «detener» suele ser la trampa: al tocarlo confirmas justo lo que crees estar evitando. <strong>Aquí no se envió nada: fue una simulación.</strong></p>
+      </div>
+      <button type="button" class="btn" id="exfilBack">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>
+        Volver a mis datos
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <footer class="foot">
-  <p>Demostración educativa · Úsala solo con el consentimiento de la audiencia · No guarda datos.</p>
+  <p>Demostración educativa · No guarda ni envía datos.</p>
   <button type="button" class="link" id="toPresent">
     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-qr"></use></svg>
     Modo expositor (QR para proyectar)
