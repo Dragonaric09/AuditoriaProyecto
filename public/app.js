@@ -588,7 +588,7 @@
     if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
     const doSpeak = () => {
       try {
-        const u = new SpeechSynthesisUtterance("Alerta, peligro. Alerta, peligro, meeeeeeeeeel, JOHHNN APURA NO VAMOS A TERMINAR.");
+        const u = new SpeechSynthesisUtterance("Alerta, peligro. Alerta, peligro meeeeeeeeeel");
         u.lang = "es-ES";
         u.rate = 0.95;
         u.pitch = 0.8;
