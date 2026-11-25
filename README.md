@@ -39,7 +39,12 @@ Es un frontend estático servido por un pequeño servidor Express. Tiene dos mod
 - **Simulación de "envío" de datos:** a los 20 s aparece una alerta a pantalla completa
   con una cuenta atrás; a los 5 s restantes aparece un botón para detenerlo. Al pulsarlo
   (o al agotarse el tiempo) se explica qué podría desencadenar un solo toque y los riesgos.
-  **No se envía absolutamente nada:** la cuenta atrás es una dramatización local.
+  Al pulsar **detener** suena una alarma: una sirena sintetizada en el navegador (Web Audio)
+  seguida de la voz del sistema diciendo «Alerta, peligro». No hay archivos de audio ni red.
+  Si el teléfono está en modo silencio, es posible que no se oiga; la alerta visual sigue.
+  El panel tiene un botón **Salir** siempre visible y hace scroll en pantallas pequeñas; en la
+  pantalla del mapa, tras 10 s vuelve sola a los datos. **No se envía absolutamente nada:**
+  la cuenta atrás es una dramatización local.
 - **Ubicación aproximada:** ese mismo panel muestra un mapa con un área de 500 m de radio
   alrededor del lugar del evento. El mapa es una imagen **local** (`public/mapa-aula.jpg`,
   teselas de OpenStreetMap) y las coordenadas están fijadas en `index.html`; no se consulta

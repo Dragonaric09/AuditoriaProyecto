@@ -42,6 +42,7 @@
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
   <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 8h.01M7 17h.01"/></symbol>
   <symbol id="i-stop" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
   <symbol id="i-net" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4M5 16v-2h14v2"/></symbol>
 </svg>
 
@@ -188,6 +189,11 @@
 <div class="exfil" id="exfil" role="alertdialog" aria-modal="true" aria-labelledby="exfilTitle" tabindex="-1" hidden>
   <div class="exfil-card" id="exfilCard">
 
+    <button type="button" class="exfil-exit" id="exfilExit">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-x"></use></svg>
+      Salir
+    </button>
+
     <!-- Fase 1: cuenta atrás -->
     <div class="exfil-view" id="exfilCountView">
       <span class="exfil-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-server"></use></svg></span>
@@ -240,6 +246,7 @@
         </ul>
         <p class="small muted">En un fraude real, el botón «detener» suele ser la trampa: al tocarlo confirmas justo lo que crees estar evitando. <strong>Aquí no se envió nada: fue una simulación.</strong></p>
       </div>
+      <p class="exfil-auto" id="exfilAuto" aria-live="polite"></p>
       <button type="button" class="btn" id="exfilBack">
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>
         Volver a mis datos

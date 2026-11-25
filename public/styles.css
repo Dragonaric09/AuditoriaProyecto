@@ -484,19 +484,24 @@ p { margin: 0; }
 .incoh-item.clean .ico { color: var(--trust); }
 
 /* ---------- Simulación de envío (overlay dramático) ---------- */
+/* El overlay hace scroll si el contenido no cabe (p. ej. el mapa en un móvil).
+   margin:auto centra la tarjeta cuando sobra espacio y no la recorta cuando no. */
 .exfil {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 20px;
   background: rgba(8, 10, 18, .82);
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
 }
 .exfil-card {
+  position: relative;
+  margin: auto;
   width: 100%;
   max-width: 420px;
   padding: 26px 22px;
@@ -506,6 +511,26 @@ p { margin: 0; }
   box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
 }
 .exfil-card.alarm { animation: exfilShake .5s ease-in-out infinite; }
+
+.exfil-exit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+  font: 600 .8rem/1 var(--font-head);
+  cursor: pointer;
+  z-index: 1;
+}
+.exfil-exit .ico { width: 14px; height: 14px; }
+.exfil-auto { font-size: .84rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 @keyframes exfilShake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }

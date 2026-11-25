@@ -19,7 +19,7 @@
   // window.__EXFIL_IDLE_MS; en producción son 20 s.
   const EXFIL_IDLE_MS = Number.isFinite(window.__EXFIL_IDLE_MS) ? window.__EXFIL_IDLE_MS : 20000;
   const EXFIL_FROM = 10;        // la cuenta atrás empieza en 10
-  const EXFIL_SHOW_STOP_AT = 5; // el botón "detener" aparece a los 5 s restantes
+  const EXFIL_SHOW_STOP_AT = 2; // el botón "detener" aparece a los 8 s
 
   const $ = (id) => document.getElementById(id);
   const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -571,16 +571,130 @@
   }
 
   // ========================= SIMULACIÓN DE ENVÍO =========================
+  // ---------- Alarma sonora al pulsar "detener" (generada en el navegador) ----------
+  // Sin archivos ni red: una sirena sintetizada con Web Audio + la voz del sistema.
+  // Debe iniciarse dentro del gesto del usuario (el clic), o el navegador lo bloquea.
+  let alarmCtx = null;
+  let alarmOsc = null;
+  let alarmVoiceTimer = null;
+
+  function pickSpanishVoice() {
+    const voices = speechSynthesis.getVoices();
+    return voices.find((v) => /^es[-_]/i.test(v.lang)) || null;
+  }
+
+  function speakAlert() {
+    alarmVoiceTimer = null;
+    if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
+    const doSpeak = () => {
+      try {
+        const u = new SpeechSynthesisUtterance("Alerta, peligro. Alerta, peligro, meeeeeeeeeel, JOHHNN APURA NO VAMOS A TERMINAR.");
+        u.lang = "es-ES";
+        u.rate = 0.95;
+        u.pitch = 0.8;
+        u.volume = 1;
+        const voice = pickSpanishVoice();
+        if (voice) u.voice = voice;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      } catch (err) { /* sin voz: queda la sirena */ }
+    };
+    // En algunos navegadores las voces cargan con retraso: esperamos un instante.
+    if (speechSynthesis.getVoices().length) {
+      doSpeak();
+    } else {
+      let done = false;
+      const once = () => { if (!done) { done = true; doSpeak(); } };
+      speechSynthesis.addEventListener?.("voiceschanged", once, { once: true });
+      setTimeout(once, 600);
+    }
+  }
+
+  function playDangerAlarm() {
+    stopDangerAlarm();
+
+    // 1) Sirena: la frecuencia sube y baja cuatro veces (≈2.4 s).
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) {
+        if (!alarmCtx) alarmCtx = new Ctx();
+        if (alarmCtx.state === "suspended") alarmCtx.resume();
+        const t0 = alarmCtx.currentTime + 0.05;
+        const dur = 2.4;
+        const osc = alarmCtx.createOscillator();
+        const filter = alarmCtx.createBiquadFilter();
+        const gain = alarmCtx.createGain();
+        osc.type = "square";
+        filter.type = "lowpass";
+        filter.frequency.value = 1800;
+        osc.frequency.setValueAtTime(600, t0);
+        for (let i = 0; i < 4; i++) {
+          const s = t0 + i * 0.6;
+          osc.frequency.linearRampToValueAtTime(1200, s + 0.3);
+          osc.frequency.linearRampToValueAtTime(600, s + 0.6);
+        }
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.exponentialRampToValueAtTime(0.2, t0 + 0.08);
+        gain.gain.setValueAtTime(0.2, t0 + dur - 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.connect(filter).connect(gain).connect(alarmCtx.destination);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.05);
+        alarmOsc = osc;
+      }
+    } catch (err) { /* sin audio: la alerta visual sigue */ }
+
+    // 2) Voz: "Alerta, peligro", justo después de la sirena.
+    alarmVoiceTimer = setTimeout(speakAlert, 2400);
+  }
+
+  function stopDangerAlarm() {
+    clearTimeout(alarmVoiceTimer);
+    alarmVoiceTimer = null;
+    if (alarmOsc) {
+      try { alarmOsc.stop(); } catch (err) { /* ya terminó */ }
+      alarmOsc = null;
+    }
+    if ("speechSynthesis" in window) {
+      try { speechSynthesis.cancel(); } catch (err) { /* nada que cancelar */ }
+    }
+  }
+
   const exfil = $("exfil");
   let exfilArmTimer = null;
   let exfilInterval = null;
   let exfilDone = false;
 
+  let exfilReturnInterval = null;
+  const RETURN_AFTER_S = 10; // tras mostrar el mapa, vuelve a la información en 10 s
+
   function clearExfilTimers() {
     clearTimeout(exfilArmTimer);
     clearInterval(exfilInterval);
+    clearInterval(exfilReturnInterval);
     exfilArmTimer = null;
     exfilInterval = null;
+    exfilReturnInterval = null;
+  }
+
+  // Cuenta regresiva en la pantalla del mapa: al llegar a cero, vuelve a la información.
+  function startReturnCountdown() {
+    let left = RETURN_AFTER_S;
+    const label = $("exfilAuto");
+    const paint = () => {
+      label.textContent = "Te llevamos de vuelta a tus datos en " + left + " s…";
+    };
+    paint();
+    exfilReturnInterval = setInterval(() => {
+      left--;
+      if (left <= 0) {
+        clearInterval(exfilReturnInterval);
+        exfilReturnInterval = null;
+        closeExfil();
+        return;
+      }
+      paint();
+    }, 1000);
   }
 
   function armExfil() {
@@ -636,12 +750,20 @@
       ? "Tocaste el botón para detenerlo. En un ataque real, ese mismo botón podría hacer lo contrario de lo que promete."
       : "No tocaste nada y el contador llegó a cero. En un ataque real, tus datos ya estarían en manos del atacante.";
     $("exfilBack").focus({ preventScroll: true });
+    startReturnCountdown();
   }
 
   function closeExfil() {
     exfil.hidden = true;
     clearExfilTimers();
+    stopDangerAlarm();
     show("reveal");
+  }
+
+  // Salir en cualquier momento: no vuelve a disparar la simulación en esta visita.
+  function exitExfil() {
+    exfilDone = true;
+    closeExfil();
   }
 
   // ---------- Modo expositor (QR) ----------
@@ -730,11 +852,17 @@
   $("restart").addEventListener("click", () => {
     visit++;
     clearExfilTimers();
+    stopDangerAlarm();
     show("lure");
   });
 
-  $("exfilStop").addEventListener("click", () => revealExfilExplain(true));
+  // El clic del usuario habilita el audio: la alarma suena solo al pulsar "detener".
+  $("exfilStop").addEventListener("click", () => {
+    playDangerAlarm();
+    revealExfilExplain(true);
+  });
   $("exfilBack").addEventListener("click", closeExfil);
+  $("exfilExit").addEventListener("click", exitExfil);
 
   $("toPresent").addEventListener("click", openPresent);
   $("toDemo").addEventListener("click", () => show("lure"));
