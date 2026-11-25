@@ -40,6 +40,11 @@ Es un frontend estático servido por un pequeño servidor Express. Tiene dos mod
   con una cuenta atrás; a los 5 s restantes aparece un botón para detenerlo. Al pulsarlo
   (o al agotarse el tiempo) se explica qué podría desencadenar un solo toque y los riesgos.
   **No se envía absolutamente nada:** la cuenta atrás es una dramatización local.
+- **Ubicación aproximada:** ese mismo panel muestra un mapa con un área de 500 m de radio
+  alrededor del lugar del evento. El mapa es una imagen **local** (`public/mapa-aula.jpg`,
+  teselas de OpenStreetMap) y las coordenadas están fijadas en `index.html`; no se consulta
+  ninguna geolocalización real. Para cambiar la sede: reemplaza esa imagen y las
+  coordenadas del bloque `.geo`.
 
 ## Requisitos
 

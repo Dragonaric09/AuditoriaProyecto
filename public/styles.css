@@ -543,9 +543,60 @@ p { margin: 0; }
 .btn.danger { background: var(--danger-solid); color: #fff; }
 .btn.big { font-size: 1.1rem; padding: 16px 18px; }
 
+/* ---------- Ubicación aproximada (mapa) ---------- */
+.geo {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--danger-line);
+  border-radius: 14px;
+  background: var(--danger-bg);
+}
+.geo-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 1rem/1.2 var(--font-head);
+  color: var(--danger);
+}
+.geo-head .ico { width: 20px; height: 20px; }
+.map-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  line-height: 0;
+  aspect-ratio: 600 / 400;
+}
+.map-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.map-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+.area500 { fill: color-mix(in srgb, var(--danger) 22%, transparent); stroke: var(--danger); stroke-width: 2.5; stroke-dasharray: 7 5; }
+.area-pulse { fill: none; stroke: var(--danger); stroke-width: 2.5; transform-box: fill-box; transform-origin: center; animation: geoPulse 2.4s ease-out infinite; }
+@keyframes geoPulse {
+  0% { transform: scale(.14); opacity: .9; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.geo-dot { fill: var(--danger); stroke: #fff; stroke-width: 2.5; }
+.map-attr {
+  position: absolute;
+  right: 0; bottom: 0;
+  font: 400 .62rem/1 var(--font-body);
+  color: #333;
+  background: rgba(255, 255, 255, .72);
+  padding: 2px 5px;
+  border-top-left-radius: 6px;
+  line-height: 1.3;
+}
+.geo-caption { font-size: .9rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.geo-coords { font: .82rem/1 ui-monospace, Consolas, monospace; color: var(--muted); }
+
 @media (prefers-reduced-motion: reduce) {
   .btn { transition: none; }
   .reveal-row { animation: none; }
   .exfil-card.alarm, .exfil-icon { animation: none; }
   .exfil-bar span { transition: none; }
+  .area-pulse { animation: none; opacity: 0; }
 }

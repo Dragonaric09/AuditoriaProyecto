@@ -207,6 +207,29 @@
       <span class="exfil-icon calm"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-stop"></use></svg></span>
       <h2 class="exfil-title calm" id="exfilExplainTitle">Detuviste el envío</h2>
       <p class="exfil-sub" id="exfilExplainText"></p>
+
+      <!-- Ubicación aproximada (mapa local, con círculo de 500 m) -->
+      <div class="geo">
+        <p class="geo-head">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg>
+          Y además, ya sabemos por dónde andas
+        </p>
+        <div class="map-wrap">
+          <img src="mapa-aula.jpg" alt="Mapa de la zona con un área marcada de 500 metros de radio alrededor de tu ubicación aproximada" width="600" height="400">
+          <svg class="map-overlay" viewBox="0 0 600 400" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
+            <circle class="area500" cx="300" cy="200" r="110"></circle>
+            <circle class="area-pulse" cx="300" cy="200" r="110"></circle>
+            <circle class="geo-dot" cx="300" cy="200" r="6"></circle>
+          </svg>
+          <span class="map-attr">© OpenStreetMap</span>
+        </div>
+        <p class="geo-caption">
+          <strong>Ubicación aproximada</strong> · dentro de un radio de 500 m
+          <span class="geo-coords">−17.39386, −66.14644</span>
+        </p>
+        <p class="small muted">En esta simulación la fijamos al lugar del evento. Un atacante real la deduce de tu IP o pidiéndote permiso de ubicación: por eso nunca lo concedas en una web abierta desde un QR.</p>
+      </div>
+
       <div class="exfil-explain">
         <div class="section-title">Lo que un solo toque puede desencadenar</div>
         <ul class="tips attack">
