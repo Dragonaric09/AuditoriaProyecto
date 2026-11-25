@@ -1,0 +1,356 @@
+<title>Demo Quishing</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  /* Layout: tarjeta única centrada, mobile-first. El señuelo parece legítimo;
+     la revelación usa rojo de alerta. Paleta azul-confianza + neutros fríos. */
+  :root {
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --fg: #1a2233;
+    --muted: #5a6478;
+    --line: #dfe3ec;
+    --trust: #1e5fd4;
+    --trust-ink: #ffffff;
+    --danger: #c0352b;
+    --danger-bg: #fdeceb;
+    --danger-line: #f3bdb9;
+    --ok: #1f7a4d;
+    --radius: 16px;
+    color-scheme: light;
+    --font-head: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1320;
+      --surface: #161d2e;
+      --fg: #e7ecf5;
+      --muted: #9aa6bd;
+      --line: #2a3248;
+      --trust: #4f8bff;
+      --trust-ink: #0b1020;
+      --danger: #ff6b5e;
+      --danger-bg: #2a1614;
+      --danger-line: #5a2621;
+      --ok: #4fd08a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1320;
+    --surface: #161d2e;
+    --fg: #e7ecf5;
+    --muted: #9aa6bd;
+    --line: #2a3248;
+    --trust: #4f8bff;
+    --trust-ink: #0b1020;
+    --danger: #ff6b5e;
+    --danger-bg: #2a1614;
+    --danger-line: #5a2621;
+    --ok: #4fd08a;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    margin: 0;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-block: 24px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  html, body { height: auto; }
+
+  h1, h2, h3 { font-family: var(--font-head); text-wrap: balance; margin: 0; line-height: 1.2; }
+  p { margin: 0; }
+
+  .card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 40px rgba(10,20,40,.12);
+    overflow: hidden;
+  }
+
+  /* ---------- Señuelo ---------- */
+  .lure-top {
+    background: linear-gradient(135deg, var(--trust), #0b3fa0);
+    color: var(--trust-ink);
+    padding: 28px 22px 24px;
+    text-align: center;
+  }
+  .brand { display: flex; align-items: center; justify-content: center; gap: 9px; font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; letter-spacing: .3px; }
+  .brand .dot { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,.18); display: grid; place-items: center; font-size: 1rem; }
+  .lure-top .pad { margin-top: 14px; font-size: 1.35rem; font-weight: 700; }
+  .lure-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .notice { background: var(--danger-bg); border: 1px solid var(--danger-line); color: var(--fg); border-radius: 12px; padding: 12px 14px; font-size: .92rem; }
+  .lure-body p.lead { color: var(--fg); }
+  .meta-row { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: .82rem; }
+  .btn {
+    appearance: none; border: 0; cursor: pointer;
+    font-family: var(--font-head); font-weight: 600; font-size: 1.02rem;
+    background: var(--trust); color: var(--trust-ink);
+    padding: 15px 18px; border-radius: 12px; width: 100%;
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .btn:hover { filter: brightness(1.05); }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--trust) 50%, transparent); outline-offset: 2px; }
+  .btn.ghost { background: transparent; color: var(--trust); border: 1px solid var(--line); }
+  .lock-foot { display: flex; align-items: center; justify-content: center; gap: 7px; color: var(--muted); font-size: .78rem; padding: 0 22px 20px; }
+
+  /* ---------- Revelación ---------- */
+  .reveal-top { background: var(--danger); color: #fff; padding: 26px 22px; text-align: center; }
+  .reveal-top .big { font-size: 1.7rem; font-weight: 700; display: flex; flex-direction: column; gap: 6px; }
+  .reveal-top .sub { margin-top: 8px; font-size: .95rem; opacity: .95; }
+  .reveal-body { padding: 22px; display: flex; flex-direction: column; gap: 22px; }
+  .section-title { font-size: .78rem; text-transform: uppercase; letter-spacing: .9px; color: var(--muted); font-family: var(--font-head); font-weight: 600; margin-bottom: 10px; }
+
+  .data-list { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .data-row { background: var(--surface); display: flex; justify-content: space-between; gap: 14px; padding: 11px 14px; font-size: .9rem; }
+  .data-row .k { color: var(--muted); flex-shrink: 0; }
+  .data-row .v { text-align: right; font-weight: 600; word-break: break-word; }
+
+  ul.tips { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  ul.tips li { display: flex; gap: 10px; font-size: .92rem; align-items: flex-start; }
+  ul.tips li::before { content: ""; flex-shrink: 0; margin-top: 3px; }
+  ul.attack li::before { content: "⚠"; color: var(--danger); font-size: 1rem; line-height: 1; }
+  ul.protect li::before { content: "✓"; color: var(--ok); font-weight: 700; }
+
+  .reassure { background: color-mix(in srgb, var(--ok) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--ok) 35%, var(--line)); border-radius: 12px; padding: 13px 15px; font-size: .88rem; }
+
+  /* ---------- Presentador ---------- */
+  .present { width: 100%; max-width: 520px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 24px; text-align: center; display: flex; flex-direction: column; gap: 18px; align-items: center; box-shadow: 0 10px 40px rgba(10,20,40,.12); }
+  #qrbox { background: #fff; padding: 16px; border-radius: 14px; display: inline-block; line-height: 0; }
+  #qrbox img, #qrbox canvas { display: block; }
+  .present .url-edit { width: 100%; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+  .present input[type=text] { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font-size: .85rem; font-family: ui-monospace, monospace; }
+  label.lbl { font-size: .74rem; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); font-family: var(--font-head); font-weight: 600; }
+
+  footer { margin-top: 20px; }
+  .link { background: none; border: 0; color: var(--muted); font-size: .8rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-family: var(--font-body); }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+
+<!-- ========================= SEÑUELO ========================= -->
+<section class="card" id="lure" hidden>
+  <div class="lure-top">
+    <div class="brand"><span class="dot">🛡️</span> PagoSeguro BO</div>
+    <div class="pad">Verificación de seguridad</div>
+  </div>
+  <div class="lure-body">
+    <div class="notice">Detectamos un <strong>inicio de sesión inusual</strong> en tu cuenta desde un dispositivo no reconocido. Para proteger tus fondos, confirma tu identidad ahora.</div>
+    <p class="lead">Tu sesión bancaria será <strong>bloqueada en 09:58</strong> si no completas la verificación.</p>
+    <div class="meta-row">🔒 Conexión cifrada · Protocolo seguro</div>
+    <button class="btn" id="goReveal">Continuar de forma segura</button>
+  </div>
+  <div class="lock-foot">🔒 Sitio verificado · No compartas este enlace</div>
+</section>
+
+<!-- ========================= REVELACIÓN ========================= -->
+<section class="card" id="reveal" hidden>
+  <div class="reveal-top">
+    <div class="big"><span style="font-size:2.2rem">⚠️</span> ¡Fuiste víctima de <br>QUISHING!</div>
+    <div class="sub">Escaneaste un QR desconocido y tocaste el enlace. Así empieza exactamente el fraude. Tranquilo: <strong>esto es una simulación</strong> y no se guardó nada.</div>
+  </div>
+  <div class="reveal-body">
+
+    <div>
+      <div class="section-title">Lo que esta página ya sabe de ti — sin pedirte permiso</div>
+      <div class="data-list" id="fingerprint"></div>
+      <div style="margin-top:12px">
+        <button class="btn ghost" id="ipBtn">Mostrar lo que revela mi dirección IP</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Lo que un atacante real haría a continuación</div>
+      <ul class="tips attack">
+        <li>Mostrarte una copia idéntica de tu banco para robar tu usuario, clave y código OTP.</li>
+        <li>Pedir permiso para tu ubicación, cámara o micrófono.</li>
+        <li>Instalar una app o perfil malicioso para espiar tu teléfono.</li>
+        <li>Usar tus datos para redirigir una transferencia a otra cuenta.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="section-title">Cómo protegerte del quishing</div>
+      <ul class="tips protect">
+        <li>Desconfía de QR en lugares públicos, correos o afiches pegados encima de otros.</li>
+        <li>Revisa siempre la dirección (URL) antes de tocar "abrir".</li>
+        <li>Nunca ingreses claves ni OTP en una página abierta desde un QR.</li>
+        <li>Ingresa a tu banco escribiendo tú mismo la dirección o desde su app oficial.</li>
+        <li>Activa la verificación en dos pasos y alertas de movimientos.</li>
+      </ul>
+    </div>
+
+    <div class="reassure">✅ <strong>Demostración educativa.</strong> Esta página no almacenó, envió ni registró ninguno de tus datos. Todo lo que ves se calculó en tu propio dispositivo.</div>
+  </div>
+</section>
+
+<!-- ========================= PRESENTADOR ========================= -->
+<section class="present" id="present" hidden>
+  <h2>Modo expositor</h2>
+  <p style="color:var(--muted);font-size:.9rem;max-width:36ch">Proyecta este código. Pide a la audiencia que lo escaneen con la cámara de su teléfono.</p>
+  <div id="qrbox"></div>
+  <div class="url-edit">
+    <label class="lbl" for="urlField">Enlace que abre el QR</label>
+    <input type="text" id="urlField" spellcheck="false">
+  </div>
+  <button class="btn" id="regen">Actualizar QR con este enlace</button>
+  <button class="link" id="toDemo">Ver la demo como la verá la audiencia →</button>
+</section>
+
+<footer>
+  <button class="link" id="toPresent">▣ Modo expositor (QR para proyectar)</button>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var lure = document.getElementById("lure");
+  var reveal = document.getElementById("reveal");
+  var present = document.getElementById("present");
+
+  function show(which) {
+    lure.hidden = which !== "lure";
+    reveal.hidden = which !== "reveal";
+    present.hidden = which !== "present";
+    window.scrollTo(0, 0);
+  }
+
+  // ---- Huella del dispositivo (todo local, sin red) ----
+  function uaInfo() {
+    var ua = navigator.userAgent || "";
+    var os = "Desconocido";
+    if (/Windows NT 10/.test(ua)) os = "Windows 10/11";
+    else if (/Windows/.test(ua)) os = "Windows";
+    else if (/Android ([\d.]+)/.test(ua)) os = "Android " + RegExp.$1;
+    else if (/iPhone OS ([\d_]+)/.test(ua)) os = "iOS " + RegExp.$1.replace(/_/g, ".");
+    else if (/Mac OS X ([\d_]+)/.test(ua)) os = "macOS " + RegExp.$1.replace(/_/g, ".");
+    else if (/Linux/.test(ua)) os = "Linux";
+    var br = "Desconocido";
+    if (/Edg\//.test(ua)) br = "Edge";
+    else if (/OPR\//.test(ua)) br = "Opera";
+    else if (/SamsungBrowser/.test(ua)) br = "Samsung Internet";
+    else if (/Chrome\//.test(ua)) br = "Chrome";
+    else if (/Firefox\//.test(ua)) br = "Firefox";
+    else if (/Safari\//.test(ua)) br = "Safari";
+    var device = /Mobi|Android|iPhone/.test(ua) ? "Teléfono móvil" : (/iPad|Tablet/.test(ua) ? "Tablet" : "Computadora");
+    return { os: os, br: br, device: device };
+  }
+
+  function addRow(parent, k, v) {
+    if (v === undefined || v === null || v === "") return;
+    var row = document.createElement("div");
+    row.className = "data-row";
+    var kk = document.createElement("span"); kk.className = "k"; kk.textContent = k;
+    var vv = document.createElement("span"); vv.className = "v"; vv.textContent = v;
+    row.appendChild(kk); row.appendChild(vv);
+    parent.appendChild(row);
+  }
+
+  function fillFingerprint() {
+    var fp = document.getElementById("fingerprint");
+    fp.innerHTML = "";
+    var info = uaInfo();
+    var now = new Date();
+    addRow(fp, "Tipo de dispositivo", info.device);
+    addRow(fp, "Sistema operativo", info.os);
+    addRow(fp, "Navegador", info.br);
+    addRow(fp, "Idioma", (navigator.languages && navigator.languages.join(", ")) || navigator.language);
+    try { addRow(fp, "Zona horaria", Intl.DateTimeFormat().resolvedOptions().timeZone); } catch (e) {}
+    addRow(fp, "Pantalla", screen.width + " × " + screen.height + " px");
+    addRow(fp, "Ventana", window.innerWidth + " × " + window.innerHeight + " px");
+    if (window.devicePixelRatio) addRow(fp, "Densidad", window.devicePixelRatio + "×");
+    if (navigator.hardwareConcurrency) addRow(fp, "Núcleos de CPU", navigator.hardwareConcurrency);
+    if (navigator.deviceMemory) addRow(fp, "Memoria RAM aprox.", navigator.deviceMemory + " GB");
+    addRow(fp, "Pantalla táctil", (navigator.maxTouchPoints > 0) ? "Sí" : "No");
+    if (navigator.connection && navigator.connection.effectiveType) addRow(fp, "Tipo de red", navigator.connection.effectiveType);
+    addRow(fp, "Hora exacta del escaneo", now.toLocaleString());
+    if (document.referrer) addRow(fp, "Página de origen", document.referrer);
+
+    // Batería (si el dispositivo lo permite)
+    if (navigator.getBattery) {
+      navigator.getBattery().then(function (b) {
+        addRow(fp, "Batería", Math.round(b.level * 100) + "%" + (b.charging ? " (cargando)" : ""));
+      }).catch(function () {});
+    }
+  }
+
+  // ---- Consulta de IP (opcional, bajo demanda) ----
+  document.getElementById("ipBtn").addEventListener("click", function () {
+    var btn = this;
+    btn.textContent = "Consultando...";
+    btn.disabled = true;
+    var fp = document.getElementById("fingerprint");
+    fetch("https://ipwho.is/")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.success !== false) {
+          addRow(fp, "Dirección IP", d.ip);
+          addRow(fp, "Ubicación aprox.", [d.city, d.region, d.country].filter(Boolean).join(", "));
+          if (d.connection && d.connection.isp) addRow(fp, "Proveedor de internet", d.connection.isp);
+        } else {
+          addRow(fp, "Dirección IP", "No disponible en esta plataforma");
+        }
+        btn.remove();
+      })
+      .catch(function () {
+        addRow(fp, "Dirección IP", "Bloqueada en esta plataforma (en un sitio real, el atacante la vería)");
+        btn.remove();
+      });
+  });
+
+  document.getElementById("goReveal").addEventListener("click", function () {
+    fillFingerprint();
+    show("reveal");
+  });
+
+  // ---- Presentador / QR ----
+  function cleanUrl() {
+    return location.origin + location.pathname;
+  }
+  var qrInstance = null;
+  function renderQR(url) {
+    var box = document.getElementById("qrbox");
+    box.innerHTML = "";
+    if (typeof QRCode === "undefined") {
+      box.innerHTML = '<p style="color:#c0352b;font-family:sans-serif;padding:10px">No se pudo cargar el generador de QR. Copia el enlace de abajo y crea el QR con otra herramienta.</p>';
+      return;
+    }
+    var size = Math.min(300, Math.max(220, window.innerWidth - 120));
+    qrInstance = new QRCode(box, { text: url, width: size, height: size, correctLevel: QRCode.CorrectLevel.M });
+  }
+  function openPresent() {
+    var u = cleanUrl();
+    document.getElementById("urlField").value = u;
+    renderQR(u);
+    show("present");
+  }
+  document.getElementById("toPresent").addEventListener("click", openPresent);
+  document.getElementById("regen").addEventListener("click", function () {
+    renderQR(document.getElementById("urlField").value.trim());
+  });
+  document.getElementById("toDemo").addEventListener("click", function () { show("lure"); });
+
+  // ---- Arranque ----
+  if (location.hash.replace("#", "") === "presentar") {
+    openPresent();
+  } else {
+    show("lure");
+  }
+})();
+</script>
