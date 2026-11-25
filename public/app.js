@@ -19,7 +19,7 @@
   // window.__EXFIL_IDLE_MS; en producción son 20 s.
   const EXFIL_IDLE_MS = Number.isFinite(window.__EXFIL_IDLE_MS) ? window.__EXFIL_IDLE_MS : 20000;
   const EXFIL_FROM = 10;        // la cuenta atrás empieza en 10
-  const EXFIL_SHOW_STOP_AT = 2; // el botón "detener" aparece a los 8 s
+  const EXFIL_SHOW_STOP_AT = 8; // el botón "detener" aparece a los 8 s
 
   const $ = (id) => document.getElementById(id);
   const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -760,12 +760,6 @@
     show("reveal");
   }
 
-  // Salir en cualquier momento: no vuelve a disparar la simulación en esta visita.
-  function exitExfil() {
-    exfilDone = true;
-    closeExfil();
-  }
-
   // ---------- Modo expositor (QR) ----------
   function currentUrl() { return location.origin + location.pathname; }
 
@@ -862,7 +856,6 @@
     revealExfilExplain(true);
   });
   $("exfilBack").addEventListener("click", closeExfil);
-  $("exfilExit").addEventListener("click", exitExfil);
 
   $("toPresent").addEventListener("click", openPresent);
   $("toDemo").addEventListener("click", () => show("lure"));

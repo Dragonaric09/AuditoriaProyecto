@@ -512,24 +512,6 @@ p { margin: 0; }
 }
 .exfil-card.alarm { animation: exfilShake .5s ease-in-out infinite; }
 
-.exfil-exit {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 11px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--fg);
-  font: 600 .8rem/1 var(--font-head);
-  cursor: pointer;
-  z-index: 1;
-}
-.exfil-exit .ico { width: 14px; height: 14px; }
 .exfil-auto { font-size: .84rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 @keyframes exfilShake {
   0%, 100% { transform: translateX(0); }
@@ -642,8 +624,8 @@ p { margin: 0; }
   .data-risk { padding-left: 24px; }
 
   .row .btn { flex-basis: 100%; }
-  .exfil { padding: 14px; }
-  .exfil-card { padding: 22px 18px; }
+  .exfil { align-items: flex-start; padding: 14px; }
+  .exfil-card { margin: 0 auto; padding: 22px 18px; }
   .exfil-count { font-size: 4.2rem; }
 }
 
